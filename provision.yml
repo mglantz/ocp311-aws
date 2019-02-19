@@ -31,7 +31,7 @@
   - name: Download bastion node user data file
     get_url:
       url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/app-prep.sh
-      dest: /tmp/app-prep.sh
+      dest: /tmp/bastion-prep.sh
       validate_certs: no
       force: yes
   - name: Replace RHN user in user data files downloaded
