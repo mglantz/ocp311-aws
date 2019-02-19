@@ -49,7 +49,7 @@
     replace:
       path: "{{ item }}"
       regexp: "RHNPASS"
-      replace: "{{ rhn_pass }}"
+      replace: '"{{ rhn_pass }}"'
     with_items:
       - /tmp/master-prep.sh
       - /tmp/infra-prep.sh
