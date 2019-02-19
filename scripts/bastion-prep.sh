@@ -122,7 +122,7 @@ chmod 600 /root/.ssh/*
 
 cat << 'EOF' >/etc/motd
 
-This is an OCP master node.
+This is Bastion node, from this node you'll reach the other servers in the cluster.
 
 EOF
 

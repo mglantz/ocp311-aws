@@ -2,24 +2,23 @@
 # Magnus Glantz, sudo@redhat.com, 2018
 # Prep app nodes for OCP install
 
-yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rm -f /etc/yum.repos.d/*
+
 ITER=0
 while true; do
   if [ "$ITER" -eq 10 ]; then
     echo "This is never going to work."
     break
   fi
-  rpm -q epel-release
+  subscription-manager register --username=RHNUSER --password=RHNPASSWORD
   if [ "$?" -eq 0 ]; then
-    echo "EPEL installed, going forward with install."
+    echo "Registered to RHN, going forward with install."
     break
   else
     sleep 30
-    yum clean all
-    yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    rpm -q epel-release
+    subscription-manager register --username=RHNUSER --password=RHNPASSWORD
     if [ "$?" -eq 0 ]; then
-      echo "EPEL installed, going forward with install."
+      echo "Registered to RHN, going forward with install."
       break
     else
       ITER=$(expr $ITER + 1)
@@ -27,7 +26,16 @@ while true; do
   fi
 done
 
-yum -y install python2-pip wget bind-utils ansible nano vim screen emacs joe
+subscription-manager repos --disable="*"
+
+subscription-manager repos \
+    --enable="rhel-7-server-rpms" \
+    --enable="rhel-7-server-extras-rpms" \
+    --enable="rhel-7-server-ose-3.11-rpms" \
+    --enable="rhel-7-server-ansible-2.6-rpms" \
+    --enable="rh-gluster-3-client-for-rhel-7-server-rpms"
+
+yum -y install ansible glusterfs-fuse openshift-ansible docker-1.13.1 wget git net-tools bind-utils yum-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct
 ITER=0
 while true; do
   if [ "$ITER" -eq 10 ]; then
@@ -117,4 +125,14 @@ cat << 'EOF' >/etc/motd
 This is an OCP app node.
 
 EOF
+
+cat <<EOF > /etc/sysconfig/docker-storage-setup
+DEVS=/dev/vdc
+VG=docker-vg
+EOF
+docker-storage-setup
+
+systemctl enable docker
+systemctl start docker
+
 	
