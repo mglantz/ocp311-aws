@@ -28,6 +28,36 @@
       dest: /tmp/app-prep.sh
       validate_certs: no
       force: yes
+  - name: Replace RHN user in user data files downloaded
+    replace:
+      path: "{{ item }}"
+      regexp: "RHNUSER"
+      replace: "{{ rhn_user }}"
+    with_items:
+      - /tmp/master-prep.sh
+      - /tmp/infra-prep.sh
+      - /tmp/app-prep.sh
+      - /tmp/gluster-prep.sh
+  - name: Replace RHN pass in user data files downloaded
+    replace:
+      path: "{{ item }}"
+      regexp: "RHNPASS"
+      replace: "{{ rhn_pass }}"
+    with_items:
+      - /tmp/master-prep.sh
+      - /tmp/infra-prep.sh
+      - /tmp/app-prep.sh
+      - /tmp/gluster-prep.sh
+  - name: Replace subscription pool id in user data files downloaded
+    replace:
+      path: "{{ item }}"
+      regexp: "SUBPOOLID"
+      replace: "{{ subscription_poolid }}"
+    with_items:
+      - /tmp/master-prep.sh
+      - /tmp/infra-prep.sh
+      - /tmp/app-prep.sh
+      - /tmp/gluster-prep.sh
   - name: Ensure a security group for demo is in place
     ec2_group:
       name: "{{ ec2_security_group }}"
