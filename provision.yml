@@ -126,7 +126,7 @@
 
   - name: Add bastion instance public IPs to host group
     add_host: hostname={{ item.public_ip }} groups=bastion
-    with_items: "{{ master.tagged_instances }}"
+    with_items: "{{ bastion.tagged_instances }}"
 
   - name: Print IP address of bastion server
     debug:
