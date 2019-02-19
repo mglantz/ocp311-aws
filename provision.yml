@@ -4,13 +4,30 @@
   vars_files:
     - vars/vars.yml
   tasks:
-  - name: Download user data file
+  - name: Download master node user data file
     get_url:
-      url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/host-prep.sh
-      dest: /tmp/ocp-prep.sh
+      url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/master-prep.sh
+      dest: /tmp/master-prep.sh
       validate_certs: no
       force: yes
-
+  - name: Download infra node user data file
+    get_url:
+      url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/infra-prep.sh
+      dest: /tmp/infra-prep.sh
+      validate_certs: no
+      force: yes
+  - name: Download gluster node user data file
+    get_url:
+      url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/gluster-prep.sh
+      dest: /tmp/gluster-prep.sh
+      validate_certs: no
+      force: yes
+  - name: Download app node user data file
+    get_url:
+      url: https://raw.githubusercontent.com/mglantz/ocp311-aws/master/scripts/app-prep.sh
+      dest: /tmp/app-prep.sh
+      validate_certs: no
+      force: yes
   - name: Ensure a security group for demo is in place
     ec2_group:
       name: "{{ ec2_security_group }}"
@@ -42,7 +59,6 @@
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
-
   - name: Provision Master nodes 
     ec2:
       aws_access_key: "{{ec2_access_key}}"
@@ -60,7 +76,7 @@
       - device_name: /dev/xvdf
         volume_size: 100
         delete_on_termination: true
-      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      user_data: "{{ lookup('file', '/tmp/master-prep.sh') }}"
       wait: true
       exact_count: "{{ number_of_master_systems }}"
       count_tag:
@@ -94,7 +110,7 @@
       - device_name: /dev/xvdf
         volume_size: 100
         delete_on_termination: true
-      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      user_data: "{{ lookup('file', '/tmp/infra-prep.sh') }}"
       wait: true
       exact_count: "{{ number_of_infra_systems }}"
       count_tag:
@@ -128,7 +144,7 @@
       - device_name: /dev/xvdf
         volume_size: 100
         delete_on_termination: true
-      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      user_data: "{{ lookup('file', '/tmp/app-prep.sh') }}"
       wait: true
       exact_count: "{{ number_of_app_systems }}"
       count_tag:
@@ -165,7 +181,7 @@
       - device_name: /dev/xvdg
         volume_size: 100
         delete_on_termination: true
-      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      user_data: "{{ lookup('file', '/tmp/gluster-prep.sh') }}"
       wait: true
       exact_count: "{{ number_of_gluster_systems }}"
       count_tag:
