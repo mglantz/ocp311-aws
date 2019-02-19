@@ -1,11 +1,13 @@
 ---
 ec2_access_key: accesskeyhere
 ec2_secret_key: "secret-key-here"
+rhn_user: username-here
+rhn_pass: password-here
+subscription_poolid: subscription-poolid-here
 ec2_security_group: ec2-security-group-here
 ec2_key: your-ssh-key-name-here
 ec2_region: ec2-region-name-here
 ami_id: ami-c86c3f23
-
 number_of_master_systems: 3
 master_size: t2.xlarge
 number_of_infra_systems: 1
