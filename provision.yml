@@ -132,6 +132,11 @@
     debug:
       msg: "{{ groups['bastion'] }}"
 
+  - name: Print internal dns name of bastion server
+    debug:
+      msg: "{{ item.private_dns_name }}"
+    with_items: "{{ bastion.tagged_instances }}"
+
   - name: Provision Master nodes 
     ec2:
       aws_access_key: "{{ec2_access_key}}"
@@ -165,6 +170,16 @@
   - name: Print IP address of master servers
     debug:
       msg: "{{ groups['master'] }}"
+
+  - name: Print internal dns name of master servers
+    debug:
+      msg: "{{ item.private_dns_name }}"
+    with_items: "{{ master.tagged_instances }}"
+
+  - name: Print internal dns name of master server
+    debug:
+      msg: "{{ item.public_dns_name }}"
+    with_items: "{{ master.tagged_instances }}"
 
   - name: Provision Infra nodes
     ec2:
@@ -200,6 +215,11 @@
     debug:
       msg: "{{ groups['infra'] }}"
 
+  - name: Print internal dns name of infra servers
+    debug:
+      msg: "{{ item.private_dns_name }}"
+    with_items: "{{ infra.tagged_instances }}"
+
   - name: Provision App nodes
     ec2:
       aws_access_key: "{{ec2_access_key}}"
@@ -233,6 +253,11 @@
   - name: Print IP address of app servers
     debug:
       msg: "{{ groups['app'] }}"
+
+  - name: Print internal dns name of app servers
+    debug:
+      msg: "{{ item.private_dns_name }}"
+    with_items: "{{ app.tagged_instances }}"
 
   - name: Provision Gluster nodes
     ec2:
@@ -271,4 +296,7 @@
     debug:
       msg: "{{ groups['gluster'] }}"
 
-
+  - name: Print internal dns name of gluster servers
+    debug:
+      msg: "{{ item.private_dns_name }}"
+    with_items: "{{ gluster.tagged_instances }}"
