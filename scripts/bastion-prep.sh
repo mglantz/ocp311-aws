@@ -26,6 +26,8 @@ while true; do
   fi
 done
 
+subscription-manager attach --pool=SUBPOOLID
+
 subscription-manager repos --disable="*"
 
 subscription-manager repos \
