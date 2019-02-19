@@ -1,0 +1,185 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - vars/vars.yml
+  tasks:
+  - name: Download user data file
+    get_url:
+      url: https://raw.githubusercontent.com/mglantz/ansible-roadshow/master/content/scripts/host-prep.sh
+      dest: /tmp/ocp-prep.sh
+      validate_certs: no
+      force: yes
+
+  - name: Ensure a security group for Ansible Tower servers is in place
+    ec2_group:
+      name: "{{ ec2_security_group_tower }}"
+      description: Security Group for Ansible Tower servers
+      region: "{{ ec2_region }}"
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 443
+          to_port: 443
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 8443
+          to_port: 8443
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 8080
+          to_port: 8080
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+
+  - name: Provision Master nodes 
+    ec2:
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      key_name: "{{ec2_key}}"
+      region: "{{ ec2_region }}"
+      group: "{{ ec2_security_group_tower }}"
+      instance_type: "{{ master_size }}"
+      image: "{{ ami_id }}"
+      volumes:
+      - device_name: /dev/sda1
+        volume_size: 100
+        volume_type: gp2
+        delete_on_termination: true
+      - device_name: /dev/xvdf
+        volume_size: 100
+        delete_on_termination: true
+      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      wait: true
+      exact_count: "{{ number_of_master_systems }}"
+      count_tag:
+        identity: master
+      instance_tags:
+        identity: master
+    register: master
+
+  - name: Add master instance public IPs to host group
+    add_host: hostname={{ item.public_ip }} groups=master
+    with_items: "{{ master.tagged_instances }}"
+
+  - name: Print IP address of master servers
+    debug:
+      msg: "{{ groups['master'] }}"
+
+  - name: Provision Infra nodes
+    ec2:
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      key_name: "{{ec2_key}}"
+      region: "{{ ec2_region }}"
+      group: "{{ ec2_security_group_tower }}"
+      instance_type: "{{ infra_size }}"
+      image: "{{ ami_id }}"
+      volumes:
+      - device_name: /dev/sda1
+        volume_size: 100
+        volume_type: gp2
+        delete_on_termination: true
+      - device_name: /dev/xvdf
+        volume_size: 100
+        delete_on_termination: true
+      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      wait: true
+      exact_count: "{{ number_of_infra_systems }}"
+      count_tag:
+        identity: infra
+      instance_tags:
+        identity: infra
+    register: infra
+
+  - name: Add infra instance public IPs to host group
+    add_host: hostname={{ item.public_ip }} groups=infra
+    with_items: "{{ infra.tagged_instances }}"
+
+  - name: Print IP address of infra servers
+    debug:
+      msg: "{{ groups['infra'] }}"
+
+  - name: Provision App nodes
+    ec2:
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      key_name: "{{ec2_key}}"
+      region: "{{ ec2_region }}"
+      group: "{{ ec2_security_group_tower }}"
+      instance_type: "{{ app_size }}"
+      image: "{{ ami_id }}"
+      volumes:
+      - device_name: /dev/sda1
+        volume_size: 100
+        volume_type: gp2
+        delete_on_termination: true
+      - device_name: /dev/xvdf
+        volume_size: 100
+        delete_on_termination: true
+      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      wait: true
+      exact_count: "{{ number_of_app_systems }}"
+      count_tag:
+        identity: app
+      instance_tags:
+        identity: app
+    register: app
+
+  - name: Add app instance public IPs to host group
+    add_host: hostname={{ item.public_ip }} groups=app
+    with_items: "{{ app.tagged_instances }}"
+
+  - name: Print IP address of app servers
+    debug:
+      msg: "{{ groups['app'] }}"
+
+  - name: Provision Gluster nodes
+    ec2:
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      key_name: "{{ec2_key}}"
+      region: "{{ ec2_region }}"
+      group: "{{ ec2_security_group_tower }}"
+      instance_type: "{{ gluster_size }}"
+      image: "{{ ami_id }}"
+      volumes:  
+      - device_name: /dev/sda1
+        volume_size: 100     
+        volume_type: gp2
+        delete_on_termination: true
+      - device_name: /dev/xvdf
+        volume_size: 100
+        delete_on_termination: true
+      - device_name: /dev/xvdg
+        volume_size: 100
+        delete_on_termination: true
+      user_data: "{{ lookup('file', '/tmp/ocp-prep.sh') }}"
+      wait: true
+      exact_count: "{{ number_of_gluster_systems }}"
+      count_tag:
+        identity: gluster
+      instance_tags:
+        identity: gluster
+    register: gluster
+
+  - name: Add gluster instance public IPs to host group
+    add_host: hostname={{ item.public_ip }} groups=gluster
+    with_items: "{{ gluster.tagged_instances }}"
+
+  - name: Print IP address of gluster servers
+    debug:
+      msg: "{{ groups['gluster'] }}"
+
+
