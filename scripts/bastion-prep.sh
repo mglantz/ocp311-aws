@@ -2,6 +2,7 @@
 # Magnus Glantz, sudo@redhat.com, 2018
 # Prep app nodes for OCP install
 
+(
 rm -f /etc/yum.repos.d/*
 
 ITER=0
@@ -172,3 +173,4 @@ registry.example.com
 [nodes]
 registry.example.com openshift_node_group_name='node-config-all-in-one'
 EOF
+) >/tmp/install.out 2>&1

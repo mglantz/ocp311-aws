@@ -1,7 +1,7 @@
 #!/bin/bash
 # Magnus Glantz, sudo@redhat.com, 2018
 # Prep app nodes for OCP install
-
+(
 rm -f /etc/yum.repos.d/*
 
 ITER=0
@@ -136,5 +136,4 @@ docker-storage-setup
 
 systemctl enable docker
 systemctl start docker
-
-	
+) >/tmp/install.out 2>&1	
