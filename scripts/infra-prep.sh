@@ -129,7 +129,7 @@ This is an OCP infra node.
 EOF
 
 cat <<EOF > /etc/sysconfig/docker-storage-setup
-DEVS=/dev/vdc
+DEVS=/dev/xvdf
 VG=docker-vg
 EOF
 docker-storage-setup

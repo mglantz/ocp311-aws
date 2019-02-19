@@ -130,7 +130,7 @@ This is Bastion node, from this node you'll reach the other servers in the clust
 EOF
 
 cat <<EOF > /etc/sysconfig/docker-storage-setup
-DEVS=/dev/vdc
+DEVS=/dev/xvdf
 VG=docker-vg
 EOF
 docker-storage-setup
