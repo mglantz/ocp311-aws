@@ -137,4 +137,38 @@ docker-storage-setup
 systemctl enable docker
 systemctl start docker
 
-	
+cat << 'EOF' >/etc/ansible/hosts
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+etcd
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+openshift_master_default_subdomain=apps.test.example.com
+
+# If ansible_ssh_user is not root, ansible_become must be set to true
+#ansible_become=true
+
+openshift_deployment_type=openshift-enterprise
+openshift_hosted_infra_selector=""
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+
+# host group for masters
+[masters]
+registry.example.com
+
+# host group for etcd
+[etcd]
+registry.example.com
+
+# host group for nodes
+[nodes]
+registry.example.com openshift_node_group_name='node-config-all-in-one'
+EOF
