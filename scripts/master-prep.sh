@@ -10,13 +10,13 @@ while true; do
     echo "This is never going to work."
     break
   fi
-  subscription-manager register --username=RHNUSER --password=RHNPASSWORD
+  subscription-manager register --username=RHNUSER --password=RHNPASS
   if [ "$?" -eq 0 ]; then
     echo "Registered to RHN, going forward with install."
     break
   else
     sleep 30
-    subscription-manager register --username=RHNUSER --password=RHNPASSWORD
+    subscription-manager register --username=RHNUSER --password=RHNPASS
     if [ "$?" -eq 0 ]; then
       echo "Registered to RHN, going forward with install."
       break
